@@ -21,6 +21,18 @@ namespace MVC5CourseHomework.Controllers
             return View(客戶聯絡人.ToList());
         }
 
+        //客戶聯絡人新增搜尋功能
+        public ActionResult Search(string keyword)
+        {
+            var data = db.客戶聯絡人.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                data = data.Where(w => w.姓名.Contains(keyword));
+            }
+            return View("Index", data);
+        }
+
         // GET: 客戶聯絡人/Details/5
         public ActionResult Details(int? id)
         {

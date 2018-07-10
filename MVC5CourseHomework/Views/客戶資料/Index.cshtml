@@ -4,7 +4,15 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>客戶資料</h2>
+
+@using(Html.BeginForm("Search", "客戶資料"))
+{
+    @Html.TextBox("keyword",null, new { placeholder = "請輸入客戶名稱"})
+    <input type="submit" />
+}
+
+<br />
 
 <p>
     @Html.ActionLink("Create New", "Create", null, new { @class="btn btn-info"})
