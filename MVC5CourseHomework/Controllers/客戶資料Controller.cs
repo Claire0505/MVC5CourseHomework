@@ -34,6 +34,22 @@ namespace MVC5CourseHomework.Controllers
             return View("Index", data);
         }
 
+        //新增客戶清單列表
+        public ActionResult CustomerList()
+        {           
+            var data = from customer in db.客戶資料
+                        select new CustomerViewModel()
+                        {
+                            Id = customer.Id,
+                            客戶名稱 = customer.客戶名稱,
+                            聯絡人數量 = db.客戶聯絡人.Count(p => p.客戶Id == customer.Id),
+                            銀行帳戶數量 = db.客戶銀行資訊.Count(p => p.客戶Id == customer.Id)
+                        };
+
+            return View(data);
+           
+        }
+
         // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {

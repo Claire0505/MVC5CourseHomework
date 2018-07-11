@@ -16,7 +16,7 @@ namespace MVC5CourseHomework
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "客戶資料", action = "Index", id = UrlParameter.Optional }
             );
         }
     }
