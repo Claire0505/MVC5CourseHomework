@@ -21,13 +21,23 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //對客戶資料新增搜尋功能
-        public ActionResult Search(string keyword)
+        public ActionResult Search(string keyword, string unNum, string telNum)
         {
             var data = db.客戶資料.AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
                 data = data.Where(w => w.客戶名稱.Contains(keyword));
+            }
+
+            if (!string.IsNullOrEmpty(unNum))
+            {
+                data = data.Where(w => w.統一編號.Contains(unNum));
+            }
+
+            if (!string.IsNullOrEmpty(telNum))
+            {
+                data = data.Where(w => w.電話.Contains(telNum));
             }
 
             //指定由那一個View顯示查詢結果

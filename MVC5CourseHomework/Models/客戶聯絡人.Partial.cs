@@ -26,6 +26,7 @@ namespace MVC5CourseHomework.Models
         
         [StringLength(250, ErrorMessage="欄位長度不得大於 250 個字元")]
         [Required]
+        [EmailAddress(ErrorMessage = "無效的Email")]
         public string Email { get; set; }
         
         [StringLength(50, ErrorMessage="欄位長度不得大於 50 個字元")]

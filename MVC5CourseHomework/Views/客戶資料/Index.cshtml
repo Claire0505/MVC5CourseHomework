@@ -6,19 +6,23 @@
 
 <h2>客戶資料</h2>
 
-@using(Html.BeginForm("Search", "客戶資料"))
+@using(Html.BeginForm("Search", "客戶資料", FormMethod.Get))
 {
-    @Html.TextBox("keyword",null, new { placeholder = "請輸入客戶名稱"})
-    <input type="submit" />
+<div class="form-inline">
+    @Html.TextBox("keyword", null, new { @class = "form-control", placeholder = "請輸入客戶名稱" })
+    @Html.TextBox("unNum", null, new { @class = "form-control", placeholder = "請輸入統一編號" })
+    @Html.TextBox("telNum", null, new { @class = "form-control", placeholder = "請輸入電話號碼" })
+    <input class="btn btn-info btn-sm" type="submit" />
+</div>
 }
 
 <br />
 
 <p>
-    @Html.ActionLink("Create New", "Create", null, new { @class="btn btn-info"})
+    @Html.ActionLink("Create New", "Create", null, new { @class="btn btn-primary"})
 </p>
 <table class="table table-hover table-bordered">
-    <tr>
+    <tr style="background-color:#63aaf6">
         <th>
             @Html.DisplayNameFor(model => model.客戶名稱)
         </th>

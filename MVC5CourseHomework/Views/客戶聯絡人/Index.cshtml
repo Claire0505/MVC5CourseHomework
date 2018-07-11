@@ -8,8 +8,10 @@
 
 @using (Html.BeginForm("Search", "客戶聯絡人"))
 {
-    @Html.TextBox("keyword", null, new { placeholder="客戶聯絡人" })
-    <input type="submit" value="搜尋" />
+    <div class="form-inline">
+        @Html.TextBox("keyword", null, new { @class = "form-control", placeholder = "聯絡人姓名" })
+        <input class="btn btn-info btn-sm"type="submit" value="搜尋" />
+    </div>
 }
 
 <br />
@@ -17,8 +19,8 @@
 <p>
     @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
 </p>
-<table class="table">
-    <tr>
+<table class="table table-bordered table-hover">
+    <tr style="background-color:#63aaf6">
         <th>
             @Html.DisplayNameFor(model => model.職稱)
         </th>
