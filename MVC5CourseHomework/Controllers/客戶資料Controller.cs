@@ -153,6 +153,10 @@ namespace MVC5CourseHomework.Controllers
             db.客戶資料.Remove(客戶資料);
             db.SaveChanges();
             return RedirectToAction("Index");
+
+            //修改 ClientsController 的刪除功能，讓資料庫「標示已刪除」即可，不要真的刪除資料
+
+
         }
 
         protected override void Dispose(bool disposing)
