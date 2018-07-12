@@ -17,13 +17,15 @@ namespace MVC5CourseHomework.Controllers
         // GET: 客戶資料
         public ActionResult Index()
         {
-            return View(db.客戶資料.ToList());
+            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            var data = db.客戶資料.Where(w => w.是否已刪除 == false).ToList();
+            return View(data);
         }
 
         //對客戶資料新增搜尋功能
         public ActionResult Search(string keyword, string unNum, string telNum)
         {
-            var data = db.客戶資料.AsQueryable();
+            var data = db.客戶資料.Where(w => w.是否已刪除 == false).AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -46,9 +48,11 @@ namespace MVC5CourseHomework.Controllers
 
         //新增客戶清單列表
         public ActionResult CustomerList()
-        {           
+        {
+            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
             var data = from customer in db.客戶資料
-                        select new CustomerViewModel()
+                       where customer.是否已刪除 == false
+                       select new CustomerViewModel()
                         {
                             Id = customer.Id,
                             客戶名稱 = customer.客戶名稱,
@@ -150,13 +154,13 @@ namespace MVC5CourseHomework.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             客戶資料 客戶資料 = db.客戶資料.Find(id);
-            db.客戶資料.Remove(客戶資料);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-
+            //db.客戶資料.Remove(客戶資料);
             //修改 ClientsController 的刪除功能，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            客戶資料.是否已刪除 = true;
+            db.SaveChanges();
 
-
+            return RedirectToAction("Index");
+          
         }
 
         protected override void Dispose(bool disposing)

@@ -36,5 +36,8 @@ namespace MVC5CourseHomework.Models
         public string 電話 { get; set; }
     
         public virtual 客戶資料 客戶資料 { get; set; }
+        
+        public bool 是否已刪除 { get; set; }
+
     }
 }

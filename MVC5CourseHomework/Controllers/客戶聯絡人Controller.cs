@@ -18,13 +18,14 @@ namespace MVC5CourseHomework.Controllers
         public ActionResult Index()
         {
             var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料);
-            return View(客戶聯絡人.ToList());
+            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            return View(客戶聯絡人.Where(w => w.是否已刪除 == false).ToList());
         }
 
         //客戶聯絡人新增搜尋功能
         public ActionResult Search(string keyword)
         {
-            var data = db.客戶聯絡人.AsQueryable();
+            var data = db.客戶聯絡人.Where(w => w.是否已刪除 == false).AsQueryable();
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -127,7 +128,9 @@ namespace MVC5CourseHomework.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            db.客戶聯絡人.Remove(客戶聯絡人);
+            //db.客戶聯絡人.Remove(客戶聯絡人);
+            //修改 ClientsController 的刪除功能，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            客戶聯絡人.是否已刪除 = true;
             db.SaveChanges();
             return RedirectToAction("Index");
         }
