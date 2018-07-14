@@ -23,15 +23,52 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //客戶聯絡人新增搜尋功能
-        public ActionResult Search(string keyword)
+        public ActionResult Search(string jobTit, string name, string phone)
         {
             var data = db.客戶聯絡人.Where(w => w.是否已刪除 == false).AsQueryable();
 
-            if (!string.IsNullOrEmpty(keyword))
+            if (!string.IsNullOrEmpty(jobTit))
             {
-                data = data.Where(w => w.姓名.Contains(keyword));
+                data = data.Where(w => w.職稱.Contains(jobTit));
+            }
+            if (!string.IsNullOrEmpty(name))
+            {
+                data = data.Where(w => w.姓名.Contains(name));
+            }
+            if (!string.IsNullOrEmpty(phone))
+            {
+                data = data.Where(w => w.手機.Contains(phone));
             }
             return View("Index", data);
+        }
+
+        // 使用Remote 來驗證 Email資料不能重複。
+        public JsonResult IsArleadySigned(string Email)
+        {
+
+            return Json(IsCustomerAvailable(Email));
+        }
+
+        public bool IsCustomerAvailable(string email)
+        {
+           
+            var checkCustomer = (from c in db.客戶聯絡人
+                                 where  c.Email.ToUpper() == email.ToUpper()
+                                 select new { email }).FirstOrDefault();
+
+            bool status;
+            if (checkCustomer != null)
+            {
+                //Already registred
+                status = false;
+            }
+            else
+            {
+                //Avaiable to use
+                status = true;
+            }
+
+            return status;
         }
 
         // GET: 客戶聯絡人/Details/5

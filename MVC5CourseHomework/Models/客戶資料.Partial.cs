@@ -3,7 +3,8 @@ namespace MVC5CourseHomework.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    
+    using System.Web.Mvc;
+
     [MetadataType(typeof(客戶資料MetaData))]
     public partial class 客戶資料
     {
@@ -33,7 +34,9 @@ namespace MVC5CourseHomework.Models
         public string 地址 { get; set; }
         
         [StringLength(250, ErrorMessage="欄位長度不得大於 250 個字元")]
-        [EmailAddress(ErrorMessage = "無效的Email")]
+        [EmailAddress(ErrorMessage = "無效的Email格式")]
+        //使用Remote 遠程驗證屬性 using system.web.mvc
+        [Remote(action: "IsCheckEmailEsist", controller: "客戶資料", HttpMethod = "Post", ErrorMessage = "Email已經存在")]
         public string Email { get; set; }
 
         public bool 是否已刪除 { get; set; }

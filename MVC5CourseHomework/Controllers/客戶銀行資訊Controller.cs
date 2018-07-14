@@ -23,13 +23,19 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //對客戶銀行資訊增加搜尋功能
-        public ActionResult Search(string keyword)
+        public ActionResult Search(string bankName, string account)
         {
-            var data = db.客戶銀行資訊.Where(w => w.是否已刪除 == true).AsQueryable();
+            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            var data = db.客戶銀行資訊.Where(w => w.是否已刪除 == false).AsQueryable();
 
-            if (!string.IsNullOrEmpty(keyword))
+            if (!string.IsNullOrEmpty(bankName))
             {
-                data = data.Where(w => w.銀行名稱.Contains(keyword));
+                data = data.Where(w => w.銀行名稱.Contains(bankName));
+            }
+
+            if (!string.IsNullOrEmpty(account))
+            {
+                data = data.Where(w => w.帳戶號碼.Contains(account));
             }
 
             return View("Index", data);

@@ -8,10 +8,12 @@
 
 @using (Html.BeginForm("Search", "客戶聯絡人"))
 {
-    <div class="form-inline">
-        @Html.TextBox("keyword", null, new { @class = "form-control", placeholder = "聯絡人姓名" })
-        <input class="btn btn-info btn-sm"type="submit" value="搜尋" />
-    </div>
+<div class="form-inline">
+    @Html.TextBox("jobTit", null, new { @class = "form-control", placeholder = "請輸入職稱" })
+    @Html.TextBox("name", null, new { @class = "form-control", placeholder = "請聯絡人姓名" })
+    @Html.TextBox("phone", null, new { @class = "form-control", placeholder = "請輸入手機號碼" })
+    <input class="btn btn-info btn-sm" type="submit" value="搜尋" />
+</div>
 }
 
 <br />

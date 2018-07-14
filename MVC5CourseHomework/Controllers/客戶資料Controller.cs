@@ -64,6 +64,35 @@ namespace MVC5CourseHomework.Controllers
            
         }
 
+        // 使用Remote 來驗證 Email資料不能重複。
+        // 參數名稱要和Model的一樣，否則不能驗證，參數的大小寫無所謂。
+        public JsonResult IsCheckEmailEsist(string Email)
+        {
+
+            return Json(IsEmialAvailable(Email),JsonRequestBehavior.AllowGet);
+        }
+
+        public bool IsEmialAvailable(string EmailId)
+        {
+            var checkEmail = (from c in db.客戶資料
+                         where c.Email.ToUpper() == EmailId.ToUpper()
+                         select new { EmailId }).FirstOrDefault();
+
+            bool status;
+            if (checkEmail != null)
+            {
+                //Already registred
+                status = false;
+            }
+            else
+            {   
+                //Avaiable to use
+                status = true;
+            }
+
+            return status;
+        }
+
         // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {
