@@ -42,33 +42,22 @@ namespace MVC5CourseHomework.Controllers
             return View("Index", data);
         }
 
-        // 使用Remote 來驗證 Email資料不能重複。
-        public JsonResult IsArleadySigned(string Email)
+       
+        public JsonResult IsArleadySigned(int 客戶Id,string Email)
         {
-
-            return Json(IsCustomerAvailable(Email));
+          
+            return Json(IsCustomerAvailable( 客戶Id, Email), JsonRequestBehavior.AllowGet);
         }
 
-        public bool IsCustomerAvailable(string email)
+        public bool IsCustomerAvailable(int custId, string email)
         {
-           
+
             var checkCustomer = (from c in db.客戶聯絡人
-                                 where  c.Email.ToUpper() == email.ToUpper()
+                                 where c.客戶Id == custId && c.Email.ToUpper() == email.ToUpper()
                                  select new { email }).FirstOrDefault();
-
-            bool status;
-            if (checkCustomer != null)
-            {
-                //Already registred
-                status = false;
-            }
-            else
-            {
-                //Avaiable to use
-                status = true;
-            }
-
-            return status;
+            // TODO 新增資料會驗證，但是修改資料時又不會驗證了，需要在修正
+            return checkCustomer != null ? true : false;
+            
         }
 
         // GET: 客戶聯絡人/Details/5
