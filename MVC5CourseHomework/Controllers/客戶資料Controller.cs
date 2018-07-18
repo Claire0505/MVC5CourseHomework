@@ -29,15 +29,19 @@ namespace MVC5CourseHomework.Controllers
         // GET: 客戶資料
         public ActionResult Index()
         {
-            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
+            var custName = customerRepo.GetCustomerName();
+            ViewBag.客戶分類 = new SelectList(custName);
             var data = customerRepo.All();
+           
             return View(data);
         }
 
         //對客戶資料新增搜尋功能
-        public ActionResult Search(string keyword, string unNum, string telNum)
+        public ActionResult Search(string 客戶分類, string unNum, string telNum)
         {
-            var data = customerRepo.Search(keyword, unNum, telNum);
+            var data = customerRepo.Search(客戶分類, unNum, telNum);
+            var custName = customerRepo.GetCustomerName();
+            ViewBag.客戶分類 = new SelectList(custName);
             //指定由那一個View顯示查詢結果
             return View("Index", data);
         }

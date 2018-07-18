@@ -21,7 +21,7 @@ namespace MVC5CourseHomework.Controllers
         public 客戶聯絡人Controller()
         {
             custContactRepo = RepositoryHelper.Get客戶聯絡人Repository();
-            customerRepo = RepositoryHelper.Get客戶資料Repository(customerRepo.UnitOfWork);
+            customerRepo = RepositoryHelper.Get客戶資料Repository();
         }
 
         // GET: 客戶聯絡人

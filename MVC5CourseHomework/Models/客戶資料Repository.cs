@@ -34,6 +34,11 @@ namespace MVC5CourseHomework.Models
 
 		}
 
+        internal IQueryable<string> GetCustomerName()
+        {
+            return this.All().Select(s => s.客戶名稱);
+        }
+
         internal IQueryable<CustomerViewModel> GetContactBankCount(
            IQueryable<客戶聯絡人> contantData, IQueryable<客戶銀行資訊> bankData)
         {
@@ -63,6 +68,7 @@ namespace MVC5CourseHomework.Models
 		}
 
     }
+
 
 	public  interface I客戶資料Repository : IRepository<客戶資料>
 	{
