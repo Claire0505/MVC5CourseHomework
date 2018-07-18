@@ -9,8 +9,9 @@
 @using (Html.BeginForm("Search", "客戶聯絡人"))
 {
 <div class="form-inline">
-    @Html.TextBox("jobTit", null, new { @class = "form-control", placeholder = "請輸入職稱" })
-    @Html.TextBox("name", null, new { @class = "form-control", placeholder = "請聯絡人姓名" })
+    @Html.DropDownList("職稱", null, "-- 請選擇職稱 --", htmlAttributes: new { @class = "form-control" })
+   
+    @Html.TextBox("name", null, new { @class = "form-control", placeholder = "請輸入聯絡人姓名" })
     @Html.TextBox("phone", null, new { @class = "form-control", placeholder = "請輸入手機號碼" })
     <input class="btn btn-info btn-sm" type="submit" value="搜尋" />
 </div>

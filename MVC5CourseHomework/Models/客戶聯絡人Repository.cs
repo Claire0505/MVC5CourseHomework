@@ -17,7 +17,7 @@ namespace MVC5CourseHomework.Models
 
 			if (!string.IsNullOrEmpty(jobTit))
 			{
-				data = data.Where(w => w.職稱.Contains(jobTit));
+				data = data.Where(w => w.職稱.Equals(jobTit));
 			}
 			if (!string.IsNullOrEmpty(name))
 			{
@@ -31,8 +31,14 @@ namespace MVC5CourseHomework.Models
 			return data;
 		}
 
+        //在「客戶聯絡人列表」頁面新增篩選功能，可以用「職稱」欄位進行資料篩選
+        internal IQueryable<string> GetJobTitle()
+        {
+            return this.All().Select(s => s.職稱).Distinct();
+        }
+
         // 實作「客戶聯絡人」時，同一個客戶下的聯絡人，其 Email 不能重複。
-		internal bool CheckEmail(int id, string email, int 客戶id)
+        internal bool CheckEmail(int id, string email, int 客戶id)
 		{
 			bool boolResult = false;
 

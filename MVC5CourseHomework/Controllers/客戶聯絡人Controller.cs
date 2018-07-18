@@ -27,15 +27,21 @@ namespace MVC5CourseHomework.Controllers
         // GET: 客戶聯絡人
         public ActionResult Index()
         {
-            var data = custContactRepo.All();
+            var jobTitle = custContactRepo.GetJobTitle();
+            ViewBag.職稱 = new SelectList(jobTitle);
+
+            var data = custContactRepo.All().ToList();
             return View(data);
         }
 
         //客戶聯絡人新增搜尋功能
-        public ActionResult Search(string jobTit, string name, string phone)
+        public ActionResult Search(string 職稱, string name, string phone)
         {
            
-            var data = custContactRepo.Search(jobTit, name, phone);
+            var data = custContactRepo.Search(職稱, name, phone);
+
+            var jobTitle = custContactRepo.GetJobTitle();
+            ViewBag.職稱 = new SelectList(jobTitle);
             return View("Index",data);
         }
 
