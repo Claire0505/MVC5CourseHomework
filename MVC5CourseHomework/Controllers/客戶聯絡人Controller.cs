@@ -12,52 +12,31 @@ namespace MVC5CourseHomework.Controllers
 {
     public class 客戶聯絡人Controller : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+        //private 客戶資料Entities db = new 客戶資料Entities();
+
+        // 使用 Repository Pattern 管理所有新刪查改(CRUD)等功能
+        客戶聯絡人Repository custContactRepo;
+        客戶資料Repository customerRepo;
+
+        public 客戶聯絡人Controller()
+        {
+            custContactRepo = RepositoryHelper.Get客戶聯絡人Repository();
+            customerRepo = RepositoryHelper.Get客戶資料Repository(customerRepo.UnitOfWork);
+        }
 
         // GET: 客戶聯絡人
         public ActionResult Index()
         {
-            var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料);
-            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
-            return View(客戶聯絡人.Where(w => w.是否已刪除 == false).ToList());
+            var data = custContactRepo.All();
+            return View(data);
         }
 
         //客戶聯絡人新增搜尋功能
         public ActionResult Search(string jobTit, string name, string phone)
         {
-            var data = db.客戶聯絡人.Where(w => w.是否已刪除 == false).AsQueryable();
-
-            if (!string.IsNullOrEmpty(jobTit))
-            {
-                data = data.Where(w => w.職稱.Contains(jobTit));
-            }
-            if (!string.IsNullOrEmpty(name))
-            {
-                data = data.Where(w => w.姓名.Contains(name));
-            }
-            if (!string.IsNullOrEmpty(phone))
-            {
-                data = data.Where(w => w.手機.Contains(phone));
-            }
-            return View("Index", data);
-        }
-
-       
-        public JsonResult IsArleadySigned(int 客戶Id,string Email)
-        {
-          
-            return Json(IsCustomerAvailable( 客戶Id, Email), JsonRequestBehavior.AllowGet);
-        }
-
-        public bool IsCustomerAvailable(int custId, string email)
-        {
-
-            var checkCustomer = (from c in db.客戶聯絡人
-                                 where c.客戶Id == custId && c.Email.ToUpper() == email.ToUpper()
-                                 select new { email }).FirstOrDefault();
-            // TODO 新增資料會驗證，但是修改資料時又不會驗證了，需要在修正
-            return checkCustomer != null ? true : false;
-            
+           
+            var data = custContactRepo.Search(jobTit, name, phone);
+            return View("Index",data);
         }
 
         // GET: 客戶聯絡人/Details/5
@@ -67,7 +46,7 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = custContactRepo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -78,7 +57,8 @@ namespace MVC5CourseHomework.Controllers
         // GET: 客戶聯絡人/Create
         public ActionResult Create()
         {
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱");
+            var customer = customerRepo.All();
+            ViewBag.客戶Id = new SelectList(customer, "Id", "客戶名稱");
             return View();
         }
 
@@ -91,12 +71,13 @@ namespace MVC5CourseHomework.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶聯絡人.Add(客戶聯絡人);
-                db.SaveChanges();
+                custContactRepo.Add(客戶聯絡人);
+                custContactRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            var customer = customerRepo.All();
+            ViewBag.客戶Id = new SelectList(customer, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -107,12 +88,13 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = custContactRepo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            var customer = customerRepo.All();
+            ViewBag.客戶Id = new SelectList(customer, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -125,11 +107,14 @@ namespace MVC5CourseHomework.Controllers
         {
             if (ModelState.IsValid)
             {
+                var db = custContactRepo.UnitOfWork.Context;
                 db.Entry(客戶聯絡人).State = EntityState.Modified;
-                db.SaveChanges();
+                custContactRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+
+            var customer = customerRepo.All();
+            ViewBag.客戶Id = new SelectList(customer ,"Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -140,7 +125,7 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 =custContactRepo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -153,11 +138,9 @@ namespace MVC5CourseHomework.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            //db.客戶聯絡人.Remove(客戶聯絡人);
-            //修改 ClientsController 的刪除功能，讓資料庫「標示已刪除」即可，不要真的刪除資料
-            客戶聯絡人.是否已刪除 = true;
-            db.SaveChanges();
+            客戶聯絡人 客戶聯絡人 = custContactRepo.Find(id);
+            custContactRepo.Delete(客戶聯絡人);
+            custContactRepo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -165,7 +148,7 @@ namespace MVC5CourseHomework.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                custContactRepo.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
         }

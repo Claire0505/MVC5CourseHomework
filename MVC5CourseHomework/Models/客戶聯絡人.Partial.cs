@@ -29,8 +29,6 @@ namespace MVC5CourseHomework.Models
         [Required]
         [EmailAddress(ErrorMessage = "無效的Email")]
 
-        //使用Remote 遠程驗證屬性 using system.web.mvc
-        [Remote(action: "IsArleadySigned", controller: "客戶聯絡人", AdditionalFields = "客戶Id", HttpMethod = "Post", ErrorMessage = "輸入Email已經存在")]
         public string Email { get; set; }
 
         [StringLength(50, ErrorMessage = "欄位長度不得大於 50 個字元")]

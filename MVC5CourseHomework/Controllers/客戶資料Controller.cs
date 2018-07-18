@@ -12,36 +12,32 @@ namespace MVC5CourseHomework.Controllers
 {
     public class 客戶資料Controller : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+        //private 客戶資料Entities db = new 客戶資料Entities();
+
+        //使用 Repository Pattern 管理所有新刪查改(CRUD)等功能
+        客戶資料Repository customerRepo;
+        客戶聯絡人Repository contactRepo;
+        客戶銀行資訊Repository bankRepo;
+
+        public 客戶資料Controller()
+        {
+            customerRepo = RepositoryHelper.Get客戶資料Repository();
+            contactRepo = RepositoryHelper.Get客戶聯絡人Repository(customerRepo.UnitOfWork);
+            bankRepo = RepositoryHelper.Get客戶銀行資訊Repository(customerRepo.UnitOfWork);
+        }
 
         // GET: 客戶資料
         public ActionResult Index()
         {
             // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
-            var data = db.客戶資料.Where(w => w.是否已刪除 == false).ToList();
+            var data = customerRepo.All();
             return View(data);
         }
 
         //對客戶資料新增搜尋功能
         public ActionResult Search(string keyword, string unNum, string telNum)
         {
-            var data = db.客戶資料.Where(w => w.是否已刪除 == false).AsQueryable();
-
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                data = data.Where(w => w.客戶名稱.Contains(keyword));
-            }
-
-            if (!string.IsNullOrEmpty(unNum))
-            {
-                data = data.Where(w => w.統一編號.Contains(unNum));
-            }
-
-            if (!string.IsNullOrEmpty(telNum))
-            {
-                data = data.Where(w => w.電話.Contains(telNum));
-            }
-
+            var data = customerRepo.Search(keyword, unNum, telNum);
             //指定由那一個View顯示查詢結果
             return View("Index", data);
         }
@@ -49,50 +45,16 @@ namespace MVC5CourseHomework.Controllers
         //新增客戶清單列表
         public ActionResult CustomerList()
         {
-            // 畫面只需顯示還未刪除的資料「是否已刪除 == false」，讓資料庫「標示已刪除」即可，不要真的刪除資料
-            var data = from customer in db.客戶資料
-                       where customer.是否已刪除 == false
-                       select new CustomerViewModel()
-                        {
-                            Id = customer.Id,
-                            客戶名稱 = customer.客戶名稱,
-                            聯絡人數量 = db.客戶聯絡人.Count(p => p.客戶Id == customer.Id),
-                            銀行帳戶數量 = db.客戶銀行資訊.Count(p => p.客戶Id == customer.Id)
-                        };
+
+            var contact = contactRepo.All();
+            var bank = bankRepo.All();
+            var data = customerRepo.GetContactBankCount(contact, bank);
 
             return View(data);
            
         }
 
-        // 使用Remote 來驗證 Email資料不能重複。
-        // 參數名稱要和Model的一樣，否則不能驗證，參數的大小寫無所謂。
-        public JsonResult IsCheckEmailEsist(string Email)
-        {
-
-            return Json(IsEmialAvailable(Email),JsonRequestBehavior.AllowGet);
-        }
-
-        public bool IsEmialAvailable(string EmailId)
-        {
-            var checkEmail = (from c in db.客戶資料
-                         where c.Email.ToUpper() == EmailId.ToUpper()
-                         select new { EmailId }).FirstOrDefault();
-
-            bool status;
-            if (checkEmail != null)
-            {
-                //Already registred
-                status = false;
-            }
-            else
-            {   
-                //Avaiable to use
-                status = true;
-            }
-
-            return status;
-        }
-
+        
         // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {
@@ -100,7 +62,7 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = customerRepo.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -123,8 +85,8 @@ namespace MVC5CourseHomework.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(客戶資料);
-                db.SaveChanges();
+                customerRepo.Add(客戶資料);
+                customerRepo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -138,7 +100,7 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = customerRepo.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -155,6 +117,7 @@ namespace MVC5CourseHomework.Controllers
         {
             if (ModelState.IsValid)
             {
+                var db = customerRepo.UnitOfWork.Context;
                 db.Entry(客戶資料).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -169,7 +132,7 @@ namespace MVC5CourseHomework.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = customerRepo.Find(id.Value);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -182,11 +145,9 @@ namespace MVC5CourseHomework.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            //db.客戶資料.Remove(客戶資料);
-            //修改 ClientsController 的刪除功能，讓資料庫「標示已刪除」即可，不要真的刪除資料
-            客戶資料.是否已刪除 = true;
-            db.SaveChanges();
+            客戶資料 客戶資料 = customerRepo.Find(id);
+            customerRepo.Delete(客戶資料);
+            customerRepo.UnitOfWork.Commit();
 
             return RedirectToAction("Index");
           
@@ -196,7 +157,7 @@ namespace MVC5CourseHomework.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                customerRepo.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
         }

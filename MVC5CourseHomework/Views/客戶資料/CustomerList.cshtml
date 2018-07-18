@@ -8,6 +8,9 @@
 
 <table class="table table-bordered " style="width:35%" >
     <tr style="background-color:#63aaf6">
+        @*<th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>*@
         <th>
             @Html.DisplayNameFor(model => model.客戶名稱)
         </th>
@@ -17,21 +20,24 @@
         <th>
             @Html.DisplayNameFor(model => model.銀行帳戶數量)
         </th>
-        
+
     </tr>
 
 @foreach (var item in Model) {
     <tr>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.Id)
+        </td>*@
         <td>
             @Html.DisplayFor(modelItem => item.客戶名稱)
         </td>
-        <td >
+        <td>
             @Html.DisplayFor(modelItem => item.聯絡人數量)
         </td>
-        <td >
+        <td>
             @Html.DisplayFor(modelItem => item.銀行帳戶數量)
         </td>
-           
+
     </tr>
 }
 
