@@ -25,22 +25,27 @@
 <table class="table table-bordered table-hover">
     <tr style="background-color:#63aaf6">
         <th>
-            @Html.DisplayNameFor(model => model.職稱)
+            @Html.ActionLink("職稱", "Index", new { sortOrder = ViewBag.jobTitleSortParm })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.姓名)
+            @Html.ActionLink("姓名", "Index", new { sortOrder = ViewBag.nameSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            @Html.ActionLink("Email", "Index", new { sortOrder = ViewBag.emailSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.手機)
+            @Html.ActionLink("手機", "Index", new { sortOrder = ViewBag.phoneNumSortParm })
+            
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.電話)
+            @Html.ActionLink("電話", "Index", new { sortOrder = ViewBag.telNumSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.客戶資料.客戶名稱)
+            @Html.ActionLink("客戶名稱", "Index", new { sortOrder = ViewBag.customerNameSortParm })
+            
         </th>
         <th></th>
     </tr>

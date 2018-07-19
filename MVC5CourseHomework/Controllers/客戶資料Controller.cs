@@ -27,13 +27,47 @@ namespace MVC5CourseHomework.Controllers
         }
 
         // GET: 客戶資料
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder)
         {
             var custName = customerRepo.GetCustomerName();
             ViewBag.客戶分類 = new SelectList(custName);
             var data = customerRepo.All();
+
+            ViewBag.custNameSortParm = String.IsNullOrEmpty(sortOrder) ? "custName_desc" : "";
+            ViewBag.unNumSortParm = String.IsNullOrEmpty(sortOrder) ? "unNum_desc" : "";
+            ViewBag.telNumSortParm = String.IsNullOrEmpty(sortOrder) ? "telNum_desc" : "";
+            ViewBag.faxNumSortParm = String.IsNullOrEmpty(sortOrder) ? "faxNum_desc" : "";
+            ViewBag.addressSortParm = String.IsNullOrEmpty(sortOrder) ? "address_desc" : "";
+            ViewBag.emailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
+
+            switch (sortOrder)
+            {
+                case "custName_desc":
+                    data = data.OrderByDescending(o => o.客戶名稱);
+                    break;
+                case "unNum_desc":
+                    data = data.OrderByDescending(o => o.統一編號);
+                    break;
+                case "telNum_desc":
+                    data = data.OrderByDescending(o => o.電話);
+                    break;
+                case "faxNum_desc":
+                    data = data.OrderByDescending(o => o.傳真);
+                    break;
+                case "address_desc":
+                    data = data.OrderByDescending(o => o.地址);
+                    break;
+                case "email_desc":
+                    data = data.OrderByDescending(o => o.Email);
+                    break;
+                default:
+                    data = data.OrderBy(o => o.Id);
+                    break;
+            }
+
+
            
-            return View(data);
+            return View(data.ToList());
         }
 
         //對客戶資料新增搜尋功能

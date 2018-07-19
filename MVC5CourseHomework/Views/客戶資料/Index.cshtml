@@ -22,24 +22,29 @@
     @Html.ActionLink("Create New", "Create", null, new { @class="btn btn-primary"})
 </p>
 <table class="table table-hover table-bordered">
-    <tr style="background-color:#63aaf6">
+    <tr style="background-color:#94c1f2">
         <th>
-            @Html.DisplayNameFor(model => model.客戶名稱)
+            @Html.ActionLink("客戶名稱", "Index", new { sortOrder = ViewBag.custNameSortParm })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.統一編號)
+            @Html.ActionLink("統一編號", "Index", new { sortOrder = ViewBag.unNumSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.電話)
+            @Html.ActionLink("電話", "Index", new { sortOrder = ViewBag.telNumSortParm })
+            
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.傳真)
+            @Html.ActionLink("傳真", "Index", new { sortOrder = ViewBag.faxNumSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.地址)
+            @Html.ActionLink("地址", "Index", new { sortOrder = ViewBag.addressSortParm })
+           
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            @Html.ActionLink("Email", "Index", new { sortOrder = ViewBag.emailSortParm })
+           
         </th>
         <th></th>
     </tr>

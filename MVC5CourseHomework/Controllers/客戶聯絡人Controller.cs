@@ -25,13 +25,47 @@ namespace MVC5CourseHomework.Controllers
         }
 
         // GET: 客戶聯絡人
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder)
         {
+            var data = custContactRepo.All();
+
             var jobTitle = custContactRepo.GetJobTitle();
             ViewBag.職稱 = new SelectList(jobTitle);
 
-            var data = custContactRepo.All().ToList();
-            return View(data);
+            ViewBag.jobTitleSortParm = String.IsNullOrEmpty(sortOrder) ? "jobTitle_desc" : "";
+            ViewBag.nameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.emailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
+            ViewBag.phoneNumSortParm = String.IsNullOrEmpty(sortOrder) ? "phone_desc" : "";
+            ViewBag.telNumSortParm = String.IsNullOrEmpty(sortOrder) ? "telNum_desc" : "";
+            ViewBag.customerNameSortParm = String.IsNullOrEmpty(sortOrder) ? "customerName_desc" : "";
+
+            switch (sortOrder)
+            {
+                case "jobTitle_desc":
+                    data = data.OrderByDescending(o => o.職稱);
+                    break;
+                case "name_desc":
+                    data = data.OrderByDescending(o => o.姓名);
+                    break;
+                case "email_desc":
+                    data = data.OrderByDescending(o => o.Email);
+                    break;
+                case "phone_desc":
+                    data = data.OrderByDescending(o => o.手機);
+                    break;
+                case "telNum_desc":
+                    data = data.OrderByDescending(o => o.電話);
+                    break;
+                case "customerName_desc":
+                    data = data.OrderByDescending(o => o.客戶資料);
+                    break;
+                default:
+                    data = data.OrderBy(o => o.客戶Id);
+                    break;
+            }
+
+          
+            return View(data.ToList());
         }
 
         //客戶聯絡人新增搜尋功能
