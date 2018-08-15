@@ -11,34 +11,38 @@ namespace MVC5CourseHomework.Models
 			return base.All().Where(w => w.是否已刪除 == false);
 		}
 
-		internal IQueryable<客戶聯絡人> Search(string jobTit,string name, string phone)
+		internal IQueryable<客戶聯絡人> Search(string contactName, string contactPhone, string contactTel, string contactTitle)
 		{
 			var data = this.All();
 
-			if (!string.IsNullOrEmpty(jobTit))
+			if (!string.IsNullOrEmpty(contactTitle))
 			{
-				data = data.Where(w => w.職稱.Equals(jobTit));
+				data = data.Where(w => w.職稱.Equals(contactTitle));
 			}
-			if (!string.IsNullOrEmpty(name))
+			if (!string.IsNullOrEmpty(contactName))
 			{
-				data = data.Where(w => w.姓名.Contains(name));
+				data = data.Where(w => w.姓名.Contains(contactName));
 			}
-			if (!string.IsNullOrEmpty(phone))
+			if (!string.IsNullOrEmpty(contactPhone))
 			{
-				data = data.Where(w => w.手機.Contains(phone));
+				data = data.Where(w => w.手機.Contains(contactPhone));
+			}
+			if (!string.IsNullOrEmpty(contactTel))
+			{
+				data = data.Where(w => w.電話.Contains(contactTel));
 			}
 
 			return data;
 		}
 
-        //在「客戶聯絡人列表」頁面新增篩選功能，可以用「職稱」欄位進行資料篩選
-        internal IQueryable<string> GetJobTitle()
-        {
-            return this.All().Select(s => s.職稱).Distinct();
-        }
+		//在「客戶聯絡人列表」頁面新增篩選功能，可以用「職稱」欄位進行資料篩選
+		internal IQueryable<string> GetJobTitle()
+		{
+			return this.All().Select(s => s.職稱).Distinct();
+		}
 
-        // 實作「客戶聯絡人」時，同一個客戶下的聯絡人，其 Email 不能重複。
-        internal bool CheckEmail(int id, string email, int 客戶id)
+		// 實作「客戶聯絡人」時，同一個客戶下的聯絡人，其 Email 不能重複。
+		internal bool CheckEmail(int id, string email, int 客戶id)
 		{
 			bool boolResult = false;
 
