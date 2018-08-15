@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.IO;
 using ClosedXML.Excel;
+using MVC5CourseHomework.Helpers;
 using MVC5CourseHomework.Models;
 
 namespace MVC5CourseHomework.Controllers
@@ -32,7 +33,10 @@ namespace MVC5CourseHomework.Controllers
             var data = custContactRepo.All();
 
             var jobTitle = custContactRepo.GetJobTitle();
-            ViewBag.職稱 = new SelectList(jobTitle);
+            ViewBag.contactTitle = new SelectList(jobTitle);
+
+            var customerName = custContactRepo.GetCustName();
+            ViewBag.custName = new SelectList(customerName);
 
             ViewBag.jobTitleSortParm = String.IsNullOrEmpty(sortOrder) ? "jobTitle_desc" : "";
             ViewBag.nameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -62,7 +66,7 @@ namespace MVC5CourseHomework.Controllers
                     data = data.OrderByDescending(o => o.客戶資料);
                     break;
                 default:
-                    data = data.OrderBy(o => o.客戶Id);
+                    data = data.OrderByDescending(o => o.客戶Id);
                     break;
             }
 
@@ -71,14 +75,48 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //客戶聯絡人新增搜尋功能
-        public ActionResult Search(string contactName, string contactPhone, string contactTel, string 職稱)
+        public ActionResult Search(string submit, string contactName, string contactPhone, string contactTel, 
+            string contactTitle, string custName)
         {
            
-            var data = custContactRepo.Search(contactName, contactPhone, contactTel, 職稱);
+            var data = custContactRepo.Search(contactName, contactPhone, contactTel, contactTitle, custName);
 
             var jobTitle = custContactRepo.GetJobTitle();
-            ViewBag.職稱 = new SelectList(jobTitle);
-            return View("Index",data);
+            ViewBag.contactTitle = new SelectList(jobTitle);
+
+            var customerName = custContactRepo.GetCustName();
+            ViewBag.custName = new SelectList(customerName);
+
+            if (submit.Equals("Search"))
+            {
+                return View("Index", data);
+            }
+            else
+            {
+                string outputsTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                ExcelExportHelper excelExportHelper = new ExcelExportHelper();
+
+                var exportData =
+                    data.Select(s => new 客戶聯絡人ViewModel()
+                    {
+                        Id = s.Id,
+                        職稱 = s.職稱,
+                        姓名 = s.姓名,
+                        Email = s.Email,
+                        手機 = s.手機,
+                        電話 = s.電話,
+                        客戶名稱 = s.客戶資料.客戶名稱
+                    })
+                    .ToList();
+
+                var memoryStream = excelExportHelper.Stream(exportData);
+
+                return File(
+                    memoryStream.ToArray(),
+                    "application/vnd.ms-excel",
+                    $"Export_客戶聯絡人_{outputsTime}.xlsx");
+            }
         }
 
         // GET: 客戶聯絡人/Details/5
@@ -186,8 +224,9 @@ namespace MVC5CourseHomework.Controllers
             return RedirectToAction("Index");
         }
 
+        /*
         //使用 ClosedXML 這個 NuGet 套件實作資料匯出功能，每個清單頁上都要有可以匯出 Excel 檔案的功能，要用到 FileResult 下載檔案
-        public ActionResult Export(string contactName, string contactPhone, string contactTel, string contactTitle)
+        public ActionResult Export(string contactName, string contactPhone, string contactTel, string contactTitle, string custName)
         {
             using (XLWorkbook wb = new XLWorkbook())
             {
@@ -196,7 +235,7 @@ namespace MVC5CourseHomework.Controllers
                 string outputsTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
                 var data = custContactRepo
-                    .Search(contactName, contactPhone, contactTel, contactTitle)
+                    .Search(contactName, contactPhone, contactTel, contactTitle, custName)
                     .Select(s => new { s.Id, s.職稱, s.姓名, s.Email, s.手機, s.電話, s.客戶資料.客戶名稱 });
 
                 var ws = wb.Worksheets.Add("custdata", 1);
@@ -225,6 +264,7 @@ namespace MVC5CourseHomework.Controllers
             }
             
         }
+        */
 
         protected override void Dispose(bool disposing)
         {

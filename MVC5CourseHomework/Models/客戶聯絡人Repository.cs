@@ -11,7 +11,8 @@ namespace MVC5CourseHomework.Models
 			return base.All().Where(w => w.是否已刪除 == false);
 		}
 
-		internal IQueryable<客戶聯絡人> Search(string contactName, string contactPhone, string contactTel, string contactTitle)
+		internal IQueryable<客戶聯絡人> Search(string contactName, string contactPhone, string contactTel, 
+			string contactTitle, string custName)
 		{
 			var data = this.All();
 
@@ -32,6 +33,11 @@ namespace MVC5CourseHomework.Models
 				data = data.Where(w => w.電話.Contains(contactTel));
 			}
 
+			if (!string.IsNullOrEmpty(custName))
+			{
+				data = data.Where(w => w.客戶資料.客戶名稱.Contains(custName));
+			}
+
 			return data;
 		}
 
@@ -40,6 +46,11 @@ namespace MVC5CourseHomework.Models
 		{
 			return this.All().Select(s => s.職稱).Distinct();
 		}
+
+        internal IQueryable<string> GetCustName()
+        {
+            return this.All().Select(s => s.客戶資料.客戶名稱).Distinct();
+        }
 
 		// 實作「客戶聯絡人」時，同一個客戶下的聯絡人，其 Email 不能重複。
 		internal bool CheckEmail(int id, string email, int 客戶id)

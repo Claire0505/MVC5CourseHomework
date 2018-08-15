@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5CourseHomework.Models;
+using MVC5CourseHomework.Helpers;
 
 namespace MVC5CourseHomework.Controllers
 {
@@ -18,7 +19,7 @@ namespace MVC5CourseHomework.Controllers
         public 客戶銀行資訊Controller()
         {
             custBankRepo = RepositoryHelper.Get客戶銀行資訊Repository();
-            customerRepo = RepositoryHelper.Get客戶資料Repository();
+            customerRepo = RepositoryHelper.Get客戶資料Repository(custBankRepo.UnitOfWork);
         }
 
         // GET: 客戶銀行資訊
@@ -29,10 +30,42 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //對客戶銀行資訊增加搜尋功能
-        public ActionResult Search(string bankName, string account)
+        public ActionResult Search(string submit, string bankName, string account)
         {
             var data = custBankRepo.Search(bankName, account);
-            return View("Index", data);
+
+            if (submit.Equals("Search"))
+            {
+                return View("Index", data);
+            }
+            else
+            {
+                string outputsTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                ExcelExportHelper excelExportHelper = new ExcelExportHelper();
+
+                var exportData =
+                   data.Select(s => new 客戶銀行資訊ViewModel()
+                   {
+                       Id = s.Id,
+                       客戶Id = s.客戶Id,
+                       銀行名稱 = s.銀行名稱,
+                       銀行代碼 = s.銀行代碼,
+                       分行代碼 = s.分行代碼,
+                       帳戶名稱 = s.帳戶名稱,
+                       帳戶號碼 = s.帳戶號碼,
+                       客戶名稱 = s.客戶資料.客戶名稱
+                   })
+                   .ToList();
+
+                var memoryStream = excelExportHelper.Stream(exportData);
+
+                return File(
+                    memoryStream.ToArray(),
+                    "application/vnd.ms-excel",
+                    $"Export_客戶銀行資訊_{outputsTime}.xlsx");
+            }
+            
         }
 
         // GET: 客戶銀行資訊/Details/5

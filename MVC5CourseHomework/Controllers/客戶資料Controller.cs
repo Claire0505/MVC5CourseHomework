@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using System.IO;
 using ClosedXML.Excel;
 using MVC5CourseHomework.Models;
+using MVC5CourseHomework.Helpers;
 
 namespace MVC5CourseHomework.Controllers
 {
@@ -73,93 +74,60 @@ namespace MVC5CourseHomework.Controllers
         }
 
         //對客戶資料新增搜尋功能
-        public ActionResult Search(string custName, string custUid, string custTel, string custFax, 
+        public ActionResult Search(string submit, string custName, string custUid, string custTel, string custFax, 
                     string custAddress, string custEmail)
         {
             var data = customerRepo.Search(custName, custUid, custTel, custFax, custAddress, custEmail);
+
             var custNameList = customerRepo.GetCustomerName();
             ViewBag.custName = new SelectList(custNameList);
-            //指定由那一個View顯示查詢結果
-            return View("Index", data);
-        }
 
-        // 使用 ClosedXML 這個 NuGet 套件實作資料匯出功能，每個清單頁上都要有可以匯出 Excel 檔案的功能，要用到 FileResult 下載檔案
-        public ActionResult Export(string custName, string custUid, string custTel, string custFax, 
-            string custAddress, string custEmail)
-        {
-            // 建立Excel
-            using (XLWorkbook wb = new XLWorkbook())
+            //指定由那一個View顯示查詢結果
+            if (submit.Equals("Search"))
             {
+                return View("Index", data);
+            }
+            else
+            {
+                int timeStamp = Convert.ToInt32(DateTime.UtcNow.AddHours(8).Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
                 string outputsTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
-                var data = customerRepo
-                    .Search(custName, custUid, custTel, custFax, custAddress, custEmail )
-                    .Select(s => new { s.Id, s.客戶名稱, s.統一編號, s.電話, s.傳真, s.地址, s.Email });
+                ExcelExportHelper excelExportHepler = new ExcelExportHelper();
 
-                var sheet = wb.Worksheets.Add("客戶資料表", 1);
+                var exportData =
+                    data.Select(s => new 客戶資料ViewModel()
+                    {
+                        Id = s.Id,
+                        客戶名稱 = s.客戶名稱,
+                        統一編號 = s.統一編號,
+                        電話 = s.電話,
+                        傳真 = s.傳真,
+                        地址 = s.地址,
+                        Email = s.Email,
+                    })
+                    .ToList();
 
-                //修改標題列Style
-                var header = sheet.Range("A1:G1");
-                header.Style.Fill.BackgroundColor = XLColor.LightBlue;
-                header.Style.Font.FontColor = XLColor.Gray;
-                header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                var memoryStream = excelExportHepler.Stream(exportData);
 
-                //欄位名稱
-                sheet.Cell("A1").Value = "Id";
-                sheet.Cell("B1").Value = "客戶名稱";
-                sheet.Cell("C1").Value = "統一編號";
-                sheet.Cell("D1").Value = "電話";
-                sheet.Cell("E1").Value = "傳真";
-                sheet.Cell("F1").Value = "地址";
-                sheet.Cell("G1").Value = "Email";
+                return File(
+                   memoryStream.ToArray(),
+                   "application/vnd.ms-excel",
+                   $"Export_客戶資料_{outputsTime}.xlsx");
 
-                sheet.Cell(2, 1).InsertData(data);
-
-                //第一欄隱藏
-                sheet.Column(1).Hide();
-                //自動伸縮欄寬
-                sheet.Column(2).AdjustToContents();
-                sheet.Column(2).Width += 2;
-
-                sheet.Column(3).AdjustToContents();
-                sheet.Column(3).Width += 2;
-
-                sheet.Column(4).AdjustToContents();
-                sheet.Column(4).Width += 2;
-
-                sheet.Column(5).AdjustToContents();
-                sheet.Column(5).Width += 2;
-
-                sheet.Column(6).AdjustToContents();
-                sheet.Column(6).Width += 2;
-
-                sheet.Column(7).AdjustToContents();
-                sheet.Column(7).Width += 2;
-
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    wb.SaveAs(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    return File(
-                        memoryStream.ToArray(),
-                        "application/vnd.ms-excel",
-                        $"Export_客戶資料_{outputsTime}.xlsx");
-                }
             }
-           
+            
         }
+
 
         //新增客戶清單列表
         public ActionResult CustomerList()
         {
-
             var contact = contactRepo.All();
             var bank = bankRepo.All();
             var data = customerRepo.GetContactBankCount(contact, bank);
+          
+            return View("CustomerList", data);
 
-            return View(data);
-           
         }
 
         
@@ -260,6 +228,75 @@ namespace MVC5CourseHomework.Controllers
             return RedirectToAction("Index");
           
         }
+
+        /*
+        // 使用 ClosedXML 這個 NuGet 套件實作資料匯出功能，每個清單頁上都要有可以匯出 Excel 檔案的功能，要用到 FileResult 下載檔案
+        public ActionResult Export(string custName, string custUid, string custTel, string custFax,
+            string custAddress, string custEmail)
+        {
+            // 建立Excel
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                string outputsTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                var data = customerRepo
+                    .Search(custName, custUid, custTel, custFax, custAddress, custEmail)
+                    .Select(s => new { s.Id, s.客戶名稱, s.統一編號, s.電話, s.傳真, s.地址, s.Email });
+
+                var sheet = wb.Worksheets.Add("客戶資料表", 1);
+
+                //修改標題列Style
+                var header = sheet.Range("A1:G1");
+                header.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                header.Style.Font.FontColor = XLColor.Gray;
+                header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                //欄位名稱
+                sheet.Cell("A1").Value = "Id";
+                sheet.Cell("B1").Value = "客戶名稱";
+                sheet.Cell("C1").Value = "統一編號";
+                sheet.Cell("D1").Value = "電話";
+                sheet.Cell("E1").Value = "傳真";
+                sheet.Cell("F1").Value = "地址";
+                sheet.Cell("G1").Value = "Email";
+
+                sheet.Cell(2, 1).InsertData(data);
+
+                //第一欄隱藏
+                sheet.Column(1).Hide();
+                //自動伸縮欄寬
+                sheet.Column(2).AdjustToContents();
+                sheet.Column(2).Width += 2;
+
+                sheet.Column(3).AdjustToContents();
+                sheet.Column(3).Width += 2;
+
+                sheet.Column(4).AdjustToContents();
+                sheet.Column(4).Width += 2;
+
+                sheet.Column(5).AdjustToContents();
+                sheet.Column(5).Width += 2;
+
+                sheet.Column(6).AdjustToContents();
+                sheet.Column(6).Width += 2;
+
+                sheet.Column(7).AdjustToContents();
+                sheet.Column(7).Width += 2;
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    wb.SaveAs(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    return File(
+                        memoryStream.ToArray(),
+                        "application/vnd.ms-excel",
+                        $"Export_客戶資料_{outputsTime}.xlsx");
+                }
+            }
+
+        }
+        */
 
         protected override void Dispose(bool disposing)
         {

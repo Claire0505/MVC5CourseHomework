@@ -11,7 +11,8 @@
 <div class="form-inline">
     @Html.TextBox("bankName", null, new { @class = "form-control", placeholder = "請輸入銀行名稱" })
     @Html.TextBox("account", null, new { @class = "form-control", placeholder = "請輸入帳戶號碼" })
-    <input class="btn btn-info btn-sm" type="submit" value="查詢" />
+    <button type="submit" class="btn btn-primary" name="submit" value="Search">Search</button>
+    <button type="submit" class="btn btn-success" name="submit" value="Export">Export</button>
 </div>
    
 }

@@ -16,7 +16,9 @@
     @Html.TextBox("custFax", null, new { @class = "form-control", placeholder = "請輸入傳真號碼" })
     @Html.TextBox("custAddress", null, new { @class = "form-control", placeholder = "請輸入客戶地址" })
     @Html.TextBox("custEmail", null, new { @class = "form-control", placeholder = "請輸入Email" })
-    <input class="btn btn-info btn-success" type="submit" />
+   
+    <button type="submit" class="btn btn-primary" name="submit" value="Search">Search</button>
+    <button type="submit" class="btn btn-success" name="submit" value="Export">Export</button>
 </div>
 }
 
@@ -24,7 +26,7 @@
 
 <p class="text-left">
     @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
-    <a href="@Url.Action("Export")" class="btn btn-success">匯出 Excel</a>
+    @*<a href="@Url.Action("Export")" class="btn btn-success">匯出 Excel</a>*@
 </p>
 <table class="table table-hover table-bordered">
     <tr style="background-color:#94c1f2">
