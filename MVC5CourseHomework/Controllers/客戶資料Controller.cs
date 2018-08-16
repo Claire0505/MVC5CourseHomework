@@ -298,6 +298,19 @@ namespace MVC5CourseHomework.Controllers
         }
         */
 
+        // 透過 JavaScript 實作一些 AJAX 操作，後端 MVC 使用 JsonResult 進行回應
+        public JsonResult GetCount(int Id)
+        {
+            var contactData = contactRepo.All();
+            var bankData = bankRepo.All();
+
+            var data = customerRepo
+                .GetContactBankCount(contactData, bankData)
+                .Where(w => w.Id.Equals(Id));
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
